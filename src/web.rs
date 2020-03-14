@@ -29,7 +29,8 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
     } else {
         "".into()
     };
-    let has_body = &v == "";
+    let has_body = &v != "";
+
     let res : PromiseFuture<String> = js! {
         const config = {
             method : @{method},
@@ -38,9 +39,11 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             }
         };
+        console.log(@{has_body});
         if(@{has_body}) {
             config.body = @{v}
         }
+        console.log(config);
         return fetch(@{conf.url},config).then(v=>v.text())
     }.try_into().unwrap();
     Answer::new(res)
