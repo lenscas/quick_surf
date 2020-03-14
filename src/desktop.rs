@@ -2,14 +2,24 @@ use crate::Config;
 
 pub struct Answer {
     req: surf::Request<http_client::isahc::IsahcClient>,
+    headers: Vec<(&'static str, String)>,
 }
 impl Answer {
-    fn new(req: surf::Request<http_client::isahc::IsahcClient>) -> Self {
-        Self { req }
+    fn new(
+        req: surf::Request<http_client::isahc::IsahcClient>,
+        headers: Option<Vec<(&'static str, String)>>,
+    ) -> Self {
+        Self {
+            req,
+            headers: headers.unwrap_or_else(Vec::new),
+        }
     }
     pub async fn json<T: serde::de::DeserializeOwned>(
-        self,
+        mut self,
     ) -> Result<T, Box<dyn std::error::Error + Send + Sync + 'static>> {
+        for (key, val) in self.headers {
+            self.req = self.req.set_header(key, val);
+        }
         self.req.recv_json().await
     }
 }
@@ -37,5 +47,5 @@ pub fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
         client
     };
 
-    Answer::new(v)
+    Answer::new(v, conf.headers)
 }

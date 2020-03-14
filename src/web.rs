@@ -31,6 +31,12 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
     };
     let has_body = &v != "";
 
+    let headers : stdweb::Array = conf.headers
+        .unwrap_or_else(Vec::new)
+        .into_iter()
+        .map(|v|vec![v.0.to_owned(),v.1])
+        .collect::<Vec<_>>().into();
+
     let res : PromiseFuture<String> = js! {
         const config = {
             method : @{method},
@@ -39,6 +45,7 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             }
         };
+        @{headers}.forEach(v=>config.headers[v[0]] = v[1]);
         console.log(@{has_body});
         if(@{has_body}) {
             config.body = @{v}

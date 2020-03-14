@@ -7,6 +7,7 @@ mod tests {
             url: "127.0.0.1".into(),
             method: Method::Get,
             body: None,
+            headers: None,
         });
     }
 }
@@ -20,6 +21,7 @@ pub struct Config<I: serde::Serialize> {
     pub url: String,
     pub method: Method,
     pub body: Option<I>,
+    pub headers: Option<Vec<(&'static str, String)>>,
 }
 
 #[cfg(not(target_arch = "wasm32"))]
