@@ -14,7 +14,7 @@ impl Answer {
     }
 }
 
-pub async fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
+pub fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
     let client = surf::Client::new();
     let client = {
         use crate::Method::*;
@@ -30,9 +30,9 @@ pub async fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
 
         let len = val.len();
         client
+            .body_string(val)
             .set_header("Content-Length", len.to_string())
             .set_header("Content-Type", "application/json")
-            .body_string(val)
     } else {
         client
     };
