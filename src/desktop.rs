@@ -20,7 +20,9 @@ impl Answer {
         for (key, val) in self.headers {
             self.req = self.req.set_header(key, val);
         }
-        self.req.recv_json().await
+        let v = self.req.recv_string().await?;
+        let v = serde_json::from_str(&v)?;
+        Ok(v)
     }
 }
 
