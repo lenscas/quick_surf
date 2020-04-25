@@ -4,7 +4,7 @@ mod tests {
     fn it_works() {
         use crate::{call, Config, Method};
         let _t = call::<()>(Config {
-            url: "127.0.0.1".into(),
+            url: "http://httpbin.org/get".into(),
             method: Method::Get,
             body: None,
             headers: None,
@@ -24,14 +24,14 @@ pub struct Config<I: serde::Serialize> {
     pub headers: Option<Vec<(&'static str, String)>>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), feature = "std-web"))]
 mod desktop;
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), feature = "std-web"))]
 pub use desktop::{call, Answer};
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "std-web"))]
 mod web;
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "std-web"))]
 extern crate stdweb;
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "std-web"))]
 pub use web::{call, Answer};
