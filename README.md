@@ -10,5 +10,5 @@ let res = call::<()>(Config {
     method: Method::Get,
     body: None,
     headers: None,
-}).json::<YourStruct>();
+}).json::<YourStruct>().await;
 ```
