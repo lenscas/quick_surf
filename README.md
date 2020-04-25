@@ -1,7 +1,14 @@
-# quick_surf
+# Silver_surf
 Made for use in [card_game](https://github.com/lenscas/card_game_client).
 
-It is simply a wrapper arround surf for native builds and a wrapper arround the fetch api when building to wasm.
-The reason is simply because although surf supports wasm builds, it uses wasm-bindgen while card_game uses stdweb.
+Silver surf is a wrapper around surf to get rid of the builder pattern that surf uses and replaces it with a config struct.
+Optionally, you can enable the stdweb wrapper if you want to build for the web but don't want to use wasm-bindgen.
 
-It also replaces surf's request factory pattern with a simple config struct, which I personally like more.
+```rust
+let res = call::<()>(Config {
+    url: "your_url".into(),
+    method: Method::Get,
+    body: None,
+    headers: None,
+}).json::<YourStruct>();
+```
