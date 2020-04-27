@@ -1,11 +1,12 @@
 [package]
 name = "silver_surf"
-version = "0.1.1"
+version = "0.1.0"
 authors = ["lenscas <lenscas@gmail.com>"]
 edition = "2018"
 keywords = ["http-client", "async", "quicksilver", "wasm"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/lenscas/silver_surf"
+description = "A wrapper arround surf"
 
 [features]
 default=["std-web"]
