@@ -17,6 +17,11 @@ pub enum Method {
     Get,
     Delete,
 }
+
+pub enum Error {
+    BadHeader(&'static str),
+}
+
 pub struct Config<I: serde::Serialize> {
     pub url: String,
     pub method: Method,

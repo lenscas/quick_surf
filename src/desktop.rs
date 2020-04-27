@@ -2,31 +2,21 @@ use crate::Config;
 
 pub struct Answer {
     req: surf::Request<http_client::isahc::IsahcClient>,
-    headers: Vec<(&'static str, String)>,
 }
 impl Answer {
-    fn new(
-        req: surf::Request<http_client::isahc::IsahcClient>,
-        headers: Option<Vec<(&'static str, String)>>,
-    ) -> Self {
-        Self {
-            req,
-            headers: headers.unwrap_or_else(Vec::new),
-        }
+    fn new(req: surf::Request<http_client::isahc::IsahcClient>) -> Self {
+        Self { req }
     }
     pub async fn json<T: serde::de::DeserializeOwned>(
         mut self,
     ) -> Result<T, Box<dyn std::error::Error + Send + Sync + 'static>> {
-        for (key, val) in self.headers {
-            self.req = self.req.set_header(key, val);
-        }
         let v = self.req.recv_string().await?;
         let v = serde_json::from_str(&v)?;
         Ok(v)
     }
 }
 
-pub fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
+pub fn call<I: serde::Serialize>(conf: Config<I>) -> Result<Answer, crate::Error> {
     let client = surf::Client::new();
     let client = {
         use crate::Method::*;
@@ -41,13 +31,24 @@ pub fn call<I: serde::Serialize>(conf: Config<I>) -> Answer {
         let val = serde_json::to_string(&body).unwrap();
 
         let len = val.len();
-        client
+        let mut client = client
             .body_string(val)
-            .set_header("Content-Length", len.to_string())
-            .set_header("Content-Type", "application/json")
+            .set_header("Content-Length".parse().unwrap(), len.to_string())
+            .set_header("Content-Type".parse().unwrap(), "application/json");
+        if let Some(headers) = conf.headers {
+            for (key, value) in headers {
+                let checked_key = key.parse();
+
+                client = match checked_key {
+                    Ok(key) => client.set_header(key, value),
+                    Err(_) => return Err(crate::Error::BadHeader(key)),
+                }
+            }
+        }
+        client
     } else {
         client
     };
 
-    Answer::new(v, conf.headers)
+    Ok(Answer::new(v))
 }

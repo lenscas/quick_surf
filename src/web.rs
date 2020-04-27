@@ -14,7 +14,7 @@ impl Answer {
         Ok(serde_json::from_str(&self.value.await?)?)
     }
 }
-pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
+pub fn call<T : serde::Serialize>(conf : Config<T>) -> Result<Answer,crate::Error> {
     let method : String = {
         use crate::Method::*;
         match conf.method {
@@ -53,5 +53,5 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Answer {
         console.log(config);
         return fetch(@{conf.url},config).then(v=>v.text())
     }.try_into().unwrap();
-    Answer::new(res)
+    Ok(Answer::new(res))
 }
