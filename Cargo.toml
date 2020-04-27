@@ -1,6 +1,6 @@
 [package]
 name = "silver_surf"
-version = "0.1.1"
+version = "0.1.0"
 authors = ["lenscas <lenscas@gmail.com>"]
 edition = "2018"
 keywords = ["http-client", "async", "quicksilver", "wasm"]
@@ -20,7 +20,7 @@ surf = {version="= 2.0.0-alpha.1"}
 http-client = { version = "2.0.0", features = ["native_client"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-stdweb={version="*",features = ["experimental_features_which_may_break_on_minor_version_bumps"], optional=true}
+stdweb={version="0.4.20",features = ["experimental_features_which_may_break_on_minor_version_bumps"], optional=true}
 
 [dependencies]
 serde = ">1.0.0"

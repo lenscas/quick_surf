@@ -8,7 +8,7 @@ impl Answer {
         Self { req }
     }
     pub async fn json<T: serde::de::DeserializeOwned>(
-        mut self,
+        self,
     ) -> Result<T, Box<dyn std::error::Error + Send + Sync + 'static>> {
         let v = self.req.recv_string().await?;
         let v = serde_json::from_str(&v)?;
