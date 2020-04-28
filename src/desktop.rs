@@ -27,28 +27,29 @@ pub fn call<I: serde::Serialize>(conf: Config<I>) -> Result<Answer, crate::Error
             Delete => client.delete(conf.url),
         }
     };
-    let v = if let Some(body) = conf.body {
+    let mut client = if let Some(body) = conf.body {
         let val = serde_json::to_string(&body).unwrap();
 
         let len = val.len();
-        let mut client = client
+        let client = client
             .body_string(val)
             .set_header("Content-Length".parse().unwrap(), len.to_string())
             .set_header("Content-Type".parse().unwrap(), "application/json");
-        if let Some(headers) = conf.headers {
-            for (key, value) in headers {
-                let checked_key = key.parse();
-
-                client = match checked_key {
-                    Ok(key) => client.set_header(key, value),
-                    Err(_) => return Err(crate::Error::BadHeader(key)),
-                }
-            }
-        }
         client
     } else {
         client
     };
+    if let Some(headers) = conf.headers {
+        for (key, value) in headers {
+            let key = dbg!(key);
+            let value = dbg!(value);
+            let checked_key = key.parse();
 
-    Ok(Answer::new(v))
+            client = match checked_key {
+                Ok(key) => client.set_header(key, value),
+                Err(_) => return Err(crate::Error::BadHeader(key)),
+            }
+        }
+    }
+    Ok(Answer::new(client))
 }
