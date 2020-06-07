@@ -37,11 +37,10 @@ pub fn call<I: serde::Serialize>(conf: Config<I>) -> Result<Answer, crate::Error
         let val = serde_json::to_string(&body).unwrap();
 
         let len = val.len();
-        let client = client
+        client
             .body_string(val)
             .set_header("Content-Length".parse().unwrap(), len.to_string())
-            .set_header("Content-Type".parse().unwrap(), "application/json");
-        client
+            .set_header("Content-Type".parse().unwrap(), "application/json")
     } else {
         client
     };
