@@ -1,17 +1,21 @@
 use crate::Config;
-use stdweb::{PromiseFuture,js,unstable::TryInto};
+use stdweb::{PromiseFuture,js,unstable::TryInto,web::ArrayBuffer};
+
 pub struct Answer {
-    value : PromiseFuture<String>
+    value : PromiseFuture<ArrayBuffer>
 }
 impl Answer {
-    fn new(value : PromiseFuture<String>) -> Self {
+    fn new(value : PromiseFuture<ArrayBuffer>) -> Self {
         Self {value}
     }
     pub async fn json<T: serde::de::DeserializeOwned>(
         self,
     ) -> Result<T, Box<dyn std::error::Error + Send + Sync + 'static>> {
         //self.req.recv_json().await
-        Ok(serde_json::from_str(&self.value.await?)?)
+        Ok(serde_json::from_slice(&Vec::<_>::from(self.value.await?))?)
+    }
+    pub async fn bytes(self) -> Result<Vec<u8>,Box<dyn std::error::Error + Send + Sync + 'static>> {
+        Ok(self.value.await?.into())
     }
 }
 pub fn call<T : serde::Serialize>(conf : Config<T>) -> Result<Answer,crate::Error> {
@@ -37,7 +41,7 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Result<Answer,crate::Erro
         .map(|v|vec![v.0.to_owned(),v.1])
         .collect::<Vec<_>>().into();
 
-    let res : PromiseFuture<String> = js! {
+    let res : PromiseFuture<ArrayBuffer> = js! {
         const config = {
             method : @{method},
             headers: {
@@ -51,7 +55,7 @@ pub fn call<T : serde::Serialize>(conf : Config<T>) -> Result<Answer,crate::Erro
             config.body = @{v}
         }
         console.log(config);
-        return fetch(@{conf.url},config).then(v=>v.text())
+        return fetch(@{conf.url},config).then(v=>v.arrayBuffer())
     }.try_into().unwrap();
     Ok(Answer::new(res))
 }

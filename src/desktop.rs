@@ -14,6 +14,12 @@ impl Answer {
         let v = serde_json::from_str(&v)?;
         Ok(v)
     }
+    pub async fn bytes(
+        self,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync + 'static>> {
+        let v = self.req.recv_bytes().await?;
+        Ok(v)
+    }
 }
 
 pub fn call<I: serde::Serialize>(conf: Config<I>) -> Result<Answer, crate::Error> {
