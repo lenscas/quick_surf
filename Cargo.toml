@@ -1,6 +1,6 @@
 [package]
 name = "silver_surf"
-version = "0.1.4-alpha.0"
+version = "0.1.4"
 authors = ["lenscas <lenscas@gmail.com>"]
 edition = "2018"
 keywords = ["http-client", "async", "quicksilver", "wasm"]
